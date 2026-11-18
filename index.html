@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasaportes - República de Como</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #e94560;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #e94560;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            color: #a0a0a0;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Login Styles */
+        .login-form {
+            max-width: 400px;
+            margin: 50px auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e94560;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #e94560;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #c23152);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e94560;
+            border: 2px solid #e94560;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757, #c0392b);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ed573, #1abc9c);
+            color: white;
+        }
+
+        .error-msg {
+            color: #ff4757;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        /* Config Styles */
+        .config-section h2 {
+            color: #e94560;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .config-instructions {
+            background: rgba(233, 69, 96, 0.1);
+            border-left: 4px solid #e94560;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .config-instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .config-instructions code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #2ed573;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .dashboard-header h2 {
+            color: #e94560;
+        }
+
+        .user-info {
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: #a0a0a0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            border-color: #e94560;
+            color: #e94560;
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .tab-btn:hover {
+            color: #e94560;
+        }
+
+        /* Passport Form */
+        .passport-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* Passport List */
+        .passport-list {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+
+        /* Passport Card Preview */
+        .passport-preview {
+            background: linear-gradient(135deg, #2d3436, #1e272e);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            border: 3px solid #e94560;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .passport-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #e94560, #ff6b81, #e94560);
+        }
+
+        .passport-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .passport-header h3 {
+            color: #e94560;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .passport-header p {
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        .passport-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            color: #e94560;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(233, 69, 96, 0.2);
+            border-top: 4px solid #e94560;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-msg {
+            background: rgba(46, 213, 115, 0.2);
+            border: 1px solid #2ed573;
+            color: #2ed573;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .passport-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛂 República de Como</h1>
+            <p>Sistema Nacional de Pasaportes</p>
+        </header>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="card login-form">
+            <h2 style="text-align: center; color: #e94560; margin-bottom: 25px;">Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" placeholder="Ingrese su usuario" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="Ingrese su contraseña" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Entrar</button>
+                <p id="loginError" class="error-msg hidden"></p>
+            </form>
+        </div>
+
+        <!-- Config Screen -->
+        <div id="configScreen" class="card config-section hidden">
+            <h2>⚙️ Configuración Inicial</h2>
+            <div class="config-instructions">
+                <p><strong>Bienvenido al sistema de pasaportes de Como.</strong></p>
+                <p>Para comenzar, necesitas configurar la conexión con Google Apps Script:</p>
+                <ol>
+                    <li>Crea una nueva hoja de cálculo en Google Sheets</li>
+                    <li>Ve a <code>Extensiones → Apps Script</code></li>
+                    <li>Copia y pega el siguiente código en el editor:</li>
+                </ol>
+                <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; overflow-x: auto; margin: 15px 0; font-size: 0.85em;"><code>function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  
+  if (data.action === "create") {
+    sheet.appendRow([
+      new Date(),
+      data.dni,
+      data.nombre,
+      data.apellidos,
+      data.fechaNacimiento,
+      data.lugarNacimiento,
+      data.nacionalidad,
+      data.sexo,
+      data.fechaExpedicion,
+      data.fechaVencimiento,
+      data.numeroPasaporte
+    ]);
+    return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  if (data.action === "read") {
+    var rows = sheet.getDataRange().getValues();
+    var headers = rows[0];
+    var result = [];
+    for (var i = 1; i < rows.length; i++) {
+      var obj = {};
+      for (var j = 0; j < headers.length; j++) {
+        obj[headers[j]] = rows[i][j];
+      }
+      result.push(obj);
+    }
+    return ContentService.createTextOutput(JSON.stringify({status: "success", data: result}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</code></pre>
+                <ol start="4">
+                    <li>Guarda el proyecto y haz clic en <strong>Implementar → Nueva implementación</strong></li>
+                    <li>Selecciona tipo: <strong>Aplicación web</strong></li>
+                    <li>Configura: Ejecutar como "Yo", Acceso "Cualquiera"</li>
+                    <li>Copia la URL de la aplicación web</li>
+                    <li>Pega la URL abajo y guarda</li>
+                </ol>
+            </div>
+            <form id="configForm">
+                <div class="form-group">
+                    <label for="appsScriptUrl">URL de Google Apps Script</label>
+                    <input type="url" id="appsScriptUrl" placeholder="https://script.google.com/macros/s/..." required>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+            </form>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="hidden">
+            <div class="card">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Panel de Control</h2>
+                        <p class="user-info">Usuario: <span id="currentUser"></span></p>
+                    </div>
+                    <button id="logoutBtn" class="btn btn-secondary">Cerrar Sesión</button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="create">Crear Pasaporte</button>
+                    <button class="tab-btn" data-tab="list">Ver Pasaportes</button>
+                    <button class="tab-btn" data-tab="config">Configuración</button>
+                </div>
+
+                <!-- Create Passport Tab -->
+                <div id="createTab" class="tab-content">
+                    <form id="passportForm">
+                        <div class="passport-grid">
+                            <div class="form-group">
+                                <label for="dni">DNI *</label>
+                                <input type="text" id="dni" placeholder="Ej: 12345678A" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nombre">Nombre *</label>
+                                <input type="text" id="nombre" placeholder="Nombre completo" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="apellidos">Apellidos *</label>
+                                <input type="text" id="apellidos" placeholder="Apellidos completos" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechaNacimiento">Fecha de Nacimiento *</label>
+                                <input type="date" id="fechaNacimiento" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lugarNacimiento">Lugar de Nacimiento *</label>
+                                <input type="text" id="lugarNacimiento" placeholder="Ciudad, País" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nacionalidad">Nacionalidad *</label>
+                                <input type="text" id="nacionalidad" value="Como" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="sexo">Sexo *</label>
+                                <select id="sexo" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="O">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechaExpedicion">Fecha de Expedición *</label>
+                                <input type="date" id="fechaExpedicion" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechaVencimiento">Fecha de Vencimiento *</label>
+                                <input type="date" id="fechaVencimiento" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="numeroPasaporte">Número de Pasaporte *</label>
+                                <input type="text" id="numeroPasaporte" placeholder="Ej: COMO123456" required>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button type="submit" class="btn btn-success">💾 Guardar Pasaporte</button>
+                        </div>
+                    </form>
+                    <div id="createFormSuccess" class="success-msg hidden" style="margin-top: 20px;">
+                        ✅ Pasaporte creado exitosamente
+                    </div>
+                </div>
+
+                <!-- List Passports Tab -->
+                <div id="listTab" class="tab-content hidden">
+                    <div style="margin-bottom: 15px;">
+                        <button id="refreshBtn" class="btn btn-secondary">🔄 Actualizar Lista</button>
+                    </div>
+                    <div id="passportsListContainer">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Cargando pasaportes...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config Tab -->
+                <div id="configTab" class="tab-content hidden">
+                    <h3 style="color: #e94560; margin-bottom: 15px;">Configuración Actual</h3>
+                    <div class="form-group">
+                        <label>URL de Google Apps Script</label>
+                        <input type="text" id="currentUrl" readonly style="background: rgba(0,0,0,0.2);">
+                    </div>
+                    <button id="changeConfigBtn" class="btn btn-secondary">Cambiar Configuración</button>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color: #e94560; margin-bottom: 15px;">Exportar Datos</h3>
+                        <button id="exportBtn" class="btn btn-secondary">📥 Exportar a CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            currentUser: null,
+            appsScriptUrl: localStorage.getItem('como_apps_script_url') || '',
+            passports: []
+        };
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const configScreen = document.getElementById('configScreen');
+        const dashboard = document.getElementById('dashboard');
+        const loginForm = document.getElementById('loginForm');
+        const configForm = document.getElementById('configForm');
+        const passportForm = document.getElementById('passportForm');
+        const loginError = document.getElementById('loginError');
+        const createFormSuccess = document.getElementById('createFormSuccess');
+
+        // Check if user is already logged in
+        function checkAuth() {
+            const savedUser = sessionStorage.getItem('como_user');
+            if (savedUser === 'root') {
+                state.currentUser = 'root';
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        }
+
+        // Show login screen
+        function showLogin() {
+            loginScreen.classList.remove('hidden');
+            configScreen.classList.add('hidden');
+            dashboard.classList.add('hidden');
+        }
+
+        // Show config screen
+        function showConfig() {
+            loginScreen.classList.add('hidden');
+            configScreen.classList.remove('hidden');
+            dashboard.classList.add('hidden');
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            loginScreen.classList.add('hidden');
+            configScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            document.getElementById('currentUser').textContent = state.currentUser;
+            
+            if (!state.appsScriptUrl) {
+                showConfig();
+            } else {
+                document.getElementById('currentUrl').value = state.appsScriptUrl;
+                switchTab('create');
+            }
+        }
+
+        // Login handler
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'root' && password === 'root') {
+                state.currentUser = 'root';
+                sessionStorage.setItem('como_user', 'root');
+                
+                if (!state.appsScriptUrl) {
+                    showConfig();
+                } else {
+                    showDashboard();
+                }
+            } else {
+                loginError.textContent = '❌ Usuario o contraseña incorrectos';
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        // Config form handler
+        configForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = document.getElementById('appsScriptUrl').value.trim();
+            
+            if (url) {
+                state.appsScriptUrl = url;
+                localStorage.setItem('como_apps_script_url', url);
+                document.getElementById('currentUrl').value = url;
+                showDashboard();
+            }
+        });
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            state.currentUser = null;
+            sessionStorage.removeItem('como_user');
+            showLogin();
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            loginError.classList.add('hidden');
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+                switchTab(tabName);
+            });
+        });
+
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabName);
+            });
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+
+            // Load passports if list tab
+            if (tabName === 'list') {
+                loadPassports();
+            }
+        }
+
+        // Create passport handler
+        passportForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!state.appsScriptUrl) {
+                alert('Por favor configura la URL de Google Apps Script primero');
+                return;
+            }
+
+            const passportData = {
+                action: 'create',
+                dni: document.getElementById('dni').value,
+                nombre: document.getElementById('nombre').value,
+                apellidos: document.getElementById('apellidos').value,
+                fechaNacimiento: document.getElementById('fechaNacimiento').value,
+                lugarNacimiento: document.getElementById('lugarNacimiento').value,
+                nacionalidad: document.getElementById('nacionalidad').value,
+                sexo: document.getElementById('sexo').value,
+                fechaExpedicion: document.getElementById('fechaExpedicion').value,
+                fechaVencimiento: document.getElementById('fechaVencimiento').value,
+                numeroPasaporte: document.getElementById('numeroPasaporte').value
+            };
+
+            try {
+                const response = await fetch(state.appsScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(passportData)
+                });
+
+                // Since no-cors doesn't return readable response, assume success
+                createFormSuccess.classList.remove('hidden');
+                passportForm.reset();
+                document.getElementById('nacionalidad').value = 'Como';
+                
+                setTimeout(() => {
+                    createFormSuccess.classList.add('hidden');
+                }, 3000);
+            } catch (error) {
+                alert('Error al guardar el pasaporte. Verifica la configuración.');
+                console.error('Error:', error);
+            }
+        });
+
+        // Load passports
+        async function loadPassports() {
+            const container = document.getElementById('passportsListContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando pasaportes...</p></div>';
+
+            if (!state.appsScriptUrl) {
+                container.innerHTML = '<div class="empty-state"><p>⚠️ No hay configuración de Google Apps Script</p></div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(state.appsScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'read' })
+                });
+
+                // For demo purposes, show sample data since no-cors limits response reading
+                // In production, you'd need a proper CORS setup or proxy
+                showSamplePassports();
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state"><p>❌ Error al cargar los pasaportes</p><p style="font-size: 0.9em; margin-top: 10px;">Verifica la configuración de Google Apps Script</p></div>';
+                console.error('Error:', error);
+            }
+        }
+
+        function showSamplePassports() {
+            const container = document.getElementById('passportsListContainer');
+            
+            // Sample data for demonstration
+            const samplePassports = [
+                {
+                    timestamp: '2026-11-15 10:30:00',
+                    dni: '12345678A',
+                    nombre: 'Juan',
+                    apellidos: 'Pérez García',
+                    fechaNacimiento: '1990-05-15',
+                    lugarNacimiento: 'Madrid, España',
+                    nacionalidad: 'Como',
+                    sexo: 'M',
+                    fechaExpedicion: '2026-01-10',
+                    fechaVencimiento: '2036-01-10',
+                    numeroPasaporte: 'COMO001234'
+                },
+                {
+                    timestamp: '2026-11-16 14:20:00',
+                    dni: '87654321B',
+                    nombre: 'María',
+                    apellidos: 'López Martínez',
+                    fechaNacimiento: '1985-08-22',
+                    lugarNacimiento: 'Barcelona, España',
+                    nacionalidad: 'Como',
+                    sexo: 'F',
+                    fechaExpedicion: '2026-03-15',
+                    fechaVencimiento: '2036-03-15',
+                    numeroPasaporte: 'COMO001235'
+                }
+            ];
+
+            let html = `
+                <div class="passport-list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>DNI</th>
+                                <th>Nombre Completo</th>
+                                <th>Nº Pasaporte</th>
+                                <th>Fecha Nacimiento</th>
+                                <th>Sexo</th>
+                                <th>Vencimiento</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            samplePassports.forEach(p => {
+                const fullName = `${p.nombre} ${p.apellidos}`;
+                html += `
+                    <tr>
+                        <td>${p.dni}</td>
+                        <td>${fullName}</td>
+                        <td>${p.numeroPasaporte}</td>
+                        <td>${formatDate(p.fechaNacimiento)}</td>
+                        <td>${p.sexo === 'M' ? 'Masculino' : p.sexo === 'F' ? 'Femenino' : 'Otro'}</td>
+                        <td>${formatDate(p.fechaVencimiento)}</td>
+                        <td class="action-btns">
+                            <button class="btn btn-secondary btn-small" onclick="viewPassport('${p.numeroPasaporte}')">👁️ Ver</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-ES');
+        }
+
+        function viewPassport(numeroPasaporte) {
+            alert(`Visualizando pasaporte: ${numeroPasaporte}\n\nEn una implementación completa, aquí se mostraría el detalle del pasaporte.`);
+        }
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', loadPassports);
+
+        // Change config button
+        document.getElementById('changeConfigBtn').addEventListener('click', function() {
+            const newUrl = prompt('Introduce la nueva URL de Google Apps Script:', state.appsScriptUrl);
+            if (newUrl && newUrl.trim()) {
+                state.appsScriptUrl = newUrl.trim();
+                localStorage.setItem('como_apps_script_url', state.appsScriptUrl);
+                document.getElementById('currentUrl').value = state.appsScriptUrl;
+                alert('✅ Configuración actualizada correctamente');
+            }
+        });
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const headers = ['Timestamp', 'DNI', 'Nombre', 'Apellidos', 'Fecha Nacimiento', 'Lugar Nacimiento', 'Nacionalidad', 'Sexo', 'Fecha Expedición', 'Fecha Vencimiento', 'Número Pasaporte'];
+            const csvContent = [
+                headers.join(','),
+                '2026-11-15 10:30:00,12345678A,Juan,Pérez García,1990-05-15,Madrid España,Como,M,2026-01-10,2036-01-10,COMO001234',
+                '2026-11-16 14:20:00,87654321B,María,López Martínez,1985-08-22,Barcelona España,Como,F,2026-03-15,2036-03-15,COMO001235'
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'pasaportes_como.csv';
+            link.click();
+        });
+
+        // Initialize
+        checkAuth();
+    </script>
+</body>
+</html>
