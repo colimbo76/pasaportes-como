@@ -91,7 +91,7 @@
                     <h2>Base de Datos Nacional</h2>
                     <button onclick="loadData()" class="btn btn-outline">🔄 Refrescar</button>
                 </div>
-                <div id="loadingMsg" class="msg msg-loading hidden">Cargando datos de Google Sheets...</div>
+                <div id="loadingMsg" class="msg msg-loading hidden">Cargando datos...</div>
                 <div style="overflow-x:auto;">
                     <table><thead><tr><th>DNI</th><th>Ciudadano</th><th>Pasaporte</th><th>Vence</th><th>Estado</th></tr></thead>
                     <tbody id="admTbody"></tbody></table>
@@ -104,7 +104,7 @@
         <div id="citView" class="hidden">
             <div class="card">
                 <h2 style="margin-bottom:1rem;">Solicitud de Pasaporte</h2>
-                <div id="citOk" class="msg msg-success hidden">✅ Registrado correctamente en Google Sheets</div>
+                <div id="citOk" class="msg msg-success hidden">✅ Registrado correctamente</div>
                 
                 <div style="background:#f8fafc; padding:1rem; border-radius:8px; margin-bottom:1.5rem; border-left:4px solid var(--accent);">
                     <button type="button" id="rndBtn" class="btn btn-accent" style="width:auto; padding:6px 12px; font-size:0.85rem;">🎲 Generar Nº Pasaporte</button>
@@ -134,9 +134,11 @@
 
 <script>
 // ==========================================
-// CONFIGURACIÓN - TU URL INTEGRADA
+// CONFIGURACIÓN
 // ==========================================
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFv6s9jg0vCt0jiixZrHYK2FoyD4F5dSdhzFv4_-43T3io3ujteOGiVu9utc5slhP9qA/exec';
+// Proxy CORS para evitar bloqueo desde GitHub Pages
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
 // ==========================================
 // ESTADO Y UTILIDADES
@@ -145,9 +147,14 @@ let currentUser = null;
 let pData = [];
 
 function $(id) { return document.getElementById(id); }
-function hideAll() { $('authView').classList.add('hidden'); $('adminView').classList.add('hidden'); $('citView').classList.add('hidden'); $('hdr').classList.add('hidden'); }
+function hideAll() { 
+    $('authView').classList.add('hidden'); 
+    $('adminView').classList.add('hidden'); 
+    $('citView').classList.add('hidden'); 
+    $('hdr').classList.add('hidden'); 
+}
 
-// Base de datos local de usuarios (solo para login)
+// Base de datos local de usuarios
 let localUsers = JSON.parse(localStorage.getItem('como_users_gapps') || '[]');
 if (!localUsers.find(u => u.u === 'root')) {
     localUsers.push({ u: 'root', p: 'root', n: 'Administrador', r: 'admin' });
@@ -253,48 +260,68 @@ function setDates() {
 }
 
 // ==========================================
-// CREAR PASAPORTE (APPS SCRIPT)
+// CREAR PASAPORTE (con proxy CORS)
 // ==========================================
 $('frmPass').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = $('saveBtn');
-    btn.disabled = true; btn.textContent = '⏳ Guardando...';
+    btn.disabled = true; 
+    btn.textContent = '⏳ Guardando...';
     $('pErr').classList.add('hidden');
     
+    const payload = {
+        action: 'create',
+        dni: $('pDni').value.trim(),
+        nombre: $('pNom').value.trim(),
+        apellidos: $('pApe').value.trim(),
+        fechaNacimiento: $('pNac').value,
+        lugarNacimiento: $('pLug').value.trim(),
+        nacionalidad: 'Como',
+        sexo: $('pSex').value,
+        fechaExpedicion: $('pExp').value,
+        fechaVencimiento: $('pVen').value,
+        numeroPasaporte: $('pNum').value.trim()
+    };
+
     try {
-        const response = await fetch(APPS_SCRIPT_URL, {
+        // Intentar con proxy CORS primero
+        const proxyUrl = CORS_PROXY + encodeURIComponent(APPS_SCRIPT_URL);
+        
+        await fetch(proxyUrl, {
             method: 'POST',
-            mode: 'no-cors', // Importante para evitar errores CORS con Apps Script
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'create',
-                dni: $('pDni').value.trim(),
-                nombre: $('pNom').value.trim(),
-                apellidos: $('pApe').value.trim(),
-                fechaNacimiento: $('pNac').value,
-                lugarNacimiento: $('pLug').value.trim(),
-                nacionalidad: 'Como',
-                sexo: $('pSex').value,
-                fechaExpedicion: $('pExp').value,
-                fechaVencimiento: $('pVen').value,
-                numeroPasaporte: $('pNum').value.trim()
-            })
+            body: JSON.stringify(payload)
         });
         
-        // Con no-cors asumimos éxito si no hay error de red
         $('citOk').classList.remove('hidden');
-        e.target.reset(); setDates();
+        e.target.reset(); 
+        setDates();
         setTimeout(() => $('citOk').classList.add('hidden'), 3000);
     } catch(err) {
-        $('pErr').textContent = '❌ Error de conexión: ' + err.message;
-        $('pErr').classList.remove('hidden');
+        // Si falla el proxy, intentar directo con no-cors
+        try {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            $('citOk').classList.remove('hidden');
+            e.target.reset(); 
+            setDates();
+            setTimeout(() => $('citOk').classList.add('hidden'), 3000);
+        } catch(err2) {
+            $('pErr').textContent = '❌ Error: ' + err2.message;
+            $('pErr').classList.remove('hidden');
+        }
     } finally {
-        btn.disabled = false; btn.textContent = '💾 REGISTRAR PASAPORTE';
+        btn.disabled = false; 
+        btn.textContent = '💾 REGISTRAR PASAPORTE';
     }
 });
 
 // ==========================================
-// LEER DATOS (APPS SCRIPT)
+// LEER DATOS (con proxy CORS)
 // ==========================================
 async function loadData() {
     const tb = $('admTbody');
@@ -303,17 +330,29 @@ async function loadData() {
     loadMsg.classList.remove('hidden');
     
     try {
-        const response = await fetch(APPS_SCRIPT_URL, {
+        // Usar proxy CORS para leer datos
+        const proxyUrl = CORS_PROXY + encodeURIComponent(APPS_SCRIPT_URL);
+        
+        const response = await fetch(proxyUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'read' })
         });
         
         const json = await response.json();
-        pData = json.data || [];
-        renderTable(pData);
+        
+        if (json.result === 'success') {
+            pData = json.data || [];
+            renderTable(pData);
+        } else {
+            throw new Error(json.error || 'Error desconocido');
+        }
     } catch(err) {
-        tb.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red;">Error: ${err.message}<br>Verifica la URL de Apps Script</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red;padding:2rem;">
+            Error al cargar datos<br>
+            <small>${err.message}</small><br><br>
+            <button onclick="loadData()" class="btn btn-outline" style="font-size:0.8rem;">Reintentar</button>
+        </td></tr>`;
     } finally {
         loadMsg.classList.add('hidden');
     }
@@ -322,16 +361,29 @@ async function loadData() {
 function renderTable(d) {
     const tb = $('admTbody');
     const emp = $('admEmpty');
-    if (!d.length) { tb.innerHTML=''; emp.classList.remove('hidden'); return; }
+    if (!d.length) { 
+        tb.innerHTML=''; 
+        emp.classList.remove('hidden'); 
+        return; 
+    }
     emp.classList.add('hidden');
     
     tb.innerHTML = d.map(p => {
-        const exp = new Date(p['Fecha Vencimiento']) < new Date();
+        // Manejar diferentes formatos de nombres de columnas
+        const vencimiento = p['Fecha Vencimiento'] || p['fecha_vencimiento'] || p.FechaVencimiento || '';
+        const dni = p.DNI || p.dni || '';
+        const nombre = p.Nombre || p.nombre || '';
+        const apellidos = p.Apellidos || p.apellidos || '';
+        const pasaporte = p['Numero Pasaporte'] || p.numero_pasaporte || p.NumeroPasaporte || '';
+        
+        const exp = vencimiento ? new Date(vencimiento) < new Date() : false;
+        const fechaVenc = vencimiento ? new Date(vencimiento).toLocaleDateString('es-ES') : '-';
+        
         return `<tr>
-            <td style="font-family:monospace;font-weight:700;">${p.DNI}</td>
-            <td>${p.Nombre} ${p.Apellidos}</td>
-            <td style="font-family:monospace;">${p['Numero Pasaporte']}</td>
-            <td>${new Date(p['Fecha Vencimiento']).toLocaleDateString('es-ES')}</td>
+            <td style="font-family:monospace;font-weight:700;">${dni}</td>
+            <td>${nombre} ${apellidos}</td>
+            <td style="font-family:monospace;">${pasaporte}</td>
+            <td>${fechaVenc}</td>
             <td><span class="badge ${exp?'badge-bad':'badge-ok'}">${exp?'VENCIDO':'ACTIVO'}</span></td>
         </tr>`;
     }).join('');
